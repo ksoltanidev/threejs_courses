@@ -1,2 +1,2 @@
 # threejs_courses
-Learning and testing ThreeJS
+Learning ThreeJS with https://threejs-journey.xyz/ classes plus some personnal tests
