@@ -44,6 +44,20 @@ gltfLoader.setDRACOLoader(dracoLoader)
 const bakedTexture = textureLoader.load('falaiseV2.jpg')
 
 /**
+ * Environment map
+ */
+// const cubeTextureLoader = new THREE.CubeTextureLoader()
+// const environmentMap = cubeTextureLoader.load([
+//     '/skybox/miramar_rt.tga',
+//     '/skybox/miramar_lf.tga',
+//     '/skybox/miramar_up.tga',
+//     '/skybox/miramar_dn.tga',
+//     '/skybox/miramar_ft.tga',
+//     '/skybox/miramar_bk.tga',
+// ])
+// scene.background = environmentMap;
+
+/**
  * Materials
  */
 // Baked material
@@ -61,6 +75,7 @@ const rubanMaterial = new THREE.MeshBasicMaterial({ color: '#330000' })
 const grassMaterial = new THREE.ShaderMaterial({
     vertexShader : waterVertexShader,
     fragmentShader : waterFragmenthader,
+    side: THREE.DoubleSide,
     uniforms : {
         uTime : { value: 0.0},
         uBigWavesSpeed : { value: 1},
@@ -81,8 +96,8 @@ const bladeWhiteMaterial = new THREE.ShaderMaterial({
 })
 
 gui.add(grassMaterial.uniforms.uBigWavesElevation, "value").min(0).max(1).step(0.001).name("Grass Waves Elevation");
-gui.add(grassMaterial.uniforms.uBigWavesFrequency.value, "x").min(0.1).max(5).step(0.01).name("Grass Waves Frequency.X");
-gui.add(grassMaterial.uniforms.uBigWavesFrequency.value, "y").min(0.1).max(5).step(0.01).name("Grass Waves Frequency.Z");
+gui.add(grassMaterial.uniforms.uBigWavesFrequency.value, "x").min(0.1).max(20).step(0.01).name("Grass Waves Frequency.X");
+gui.add(grassMaterial.uniforms.uBigWavesFrequency.value, "y").min(0.1).max(20).step(0.01).name("Grass Waves Frequency.Z");
 gui.add(grassMaterial.uniforms.uBigWavesSpeed, "value").min(0).max(5).step(0.01).name("Grass Waves Speed");
 gui.addColor(grassParameter, "depthColor").name("depht Color").onChange(() => grassMaterial.uniforms.uDepthColor.value.set(grassParameter.depthColor));
 gui.addColor(grassParameter, "surfaceColor").name("surface Color").onChange(() => grassMaterial.uniforms.uSurfaceColor.value.set(grassParameter.surfaceColor));
@@ -92,12 +107,12 @@ gui.addColor(grassParameter, "surfaceColor").name("surface Color").onChange(() =
  * Scene
  */
 gltfLoader.load(
-    'customGrass.glb',
+    'customGrass.glb', //the grass base model
     (grass_gltf) => {
         grass_gltf.scene.traverse((grassMesh) => {
             if (grassMesh.name === "CustomGrass") {
                 gltfLoader.load(
-                    'grass_particles.glb',
+                    'grass_particles.glb', //Vertices with final model position/scale/rotation
                     (grass_gltf) => {
                         let grassGeometries = [];
                         grass_gltf.scene.traverse((particle) => {
@@ -125,14 +140,15 @@ gltfLoader.load(
 
 
 gltfLoader.load(
-    'falaiseV2_noGrass.glb',
+    'falaiseV2_fullBlades.glb',
     (gltf) => {
         gltf.scene.traverse((child) => {
             //console.log(child)
             if (child.name === "Light1" || child.name === 'Light2') child.material = lanternMaterial;
             else if (child.name === "ruban1" || child.name === 'ruban2' || child.name === 'ruban_base') child.material = rubanMaterial;
             //else if (child.name === "Grass" ) child.material = grassMaterial;
-            else if (child.name === "blade1" ) child.material = bladeWhiteMaterial;
+            else if (child.name === "fullBlade1" ) child.material = bladeWhiteMaterial;
+            else if (child.name === "fullBlade2" ) child.material = bladeWhiteMaterial;
             else child.material = bakedMaterial
             //child.material = bakedMaterial
         })
